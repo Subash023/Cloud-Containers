@@ -1,21 +1,11 @@
-import time
-import redis # type: ignore
+import os
 from flask import Flask
+from redis import Redis # type: ignore
 app = Flask(__name__)
-cache = redis.Redis(host='redis', port=6379)
-def get_hit_count():
-    retries = 5
-    while True:
-        try:
-            return cache.incr('hits')
-        except redis.exceptions.ConnectionError as exc:
-            if retries == 0:
-                raise exc
-            retries -= 1
-            time.sleep(0.5)
+redis_client = Redis(host='redis', port=6379, decode_responses=True)
 @app.route('/')
-def hello():
-    count = get_hit_count()
-    return f'Hello World! This page has been viewed {count} times.\n'
+def hell0():
+    Visits = redis_client.incr('counter')
+    return f"Container network communication successful! Total visits:{Visits}"
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
