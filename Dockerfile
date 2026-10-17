@@ -1,5 +1,12 @@
-FROM python:3.9-slim
+# Stage 1: Build the application
+FROM node:18 AS builder
 WORKDIR /app
-RUN pip install flask redis
-COPY app.py .
-CMD ["python", "app.py"]
+COPY . .
+
+# Stage 2: Run the application
+FROM node:18-alpine
+WORKDIR /app
+# Copy only the necessary files from the builder stage
+COPY --from=builder /app .
+EXPOSE 3000
+CMD ["node", "server.js"]
